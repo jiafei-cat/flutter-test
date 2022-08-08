@@ -88,7 +88,7 @@ class _RandomWordsState extends State<RandomWords> {
               TextButton(
                 onPressed: () => {
                   setState(() {
-                    appBarTitleText = Text('Current tap word is ' + pair.asPascalCase);
+                    appBarTitleText = Text('Current tap word is ${pair.asPascalCase}');
                     if (alreadySaved) {
                       _saved.remove(pair);
                     } else { 

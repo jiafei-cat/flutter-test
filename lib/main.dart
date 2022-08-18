@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(const MyApp());
@@ -33,6 +34,9 @@ class _RandomWordsState extends State<RandomWords> {
   final _biggerFont = const TextStyle(fontSize: 18);
   var appBarTitleText  = Text('Random wrods list');
 
+  final methodChannelBattery = MethodChannel('samples.flutter.dev/battery');
+  String _batteryLevel = 'Unknown battery level.';
+
   @override
   Widget build(BuildContext context) {
     final wordPair = WordPair.random();
@@ -41,13 +45,43 @@ class _RandomWordsState extends State<RandomWords> {
       appBar: AppBar(
         title: appBarTitleText,
         actions: <Widget>[
+          ElevatedButton(
+            child: Text("查看电池电量"),
+            onPressed: _getBatteryLevel,
+          ),
           IconButton(onPressed: _pushSaved, icon: const Icon(Icons.list)),
         ],
       ),
       body: Center(
-        child: _buildSuggerstions(),
+        child: Stack(children: [
+          Container(
+            child: Row(children: [
+              Text('电池电量:'),
+              Text(_batteryLevel)
+            ]),
+          ),
+          _buildSuggerstions(),
+        ],)
       ),
     );
+  }
+
+  Future<void> _getBatteryLevel() async {
+    String batteryLevel;
+    try {
+      // invokeMethod('getBatteryLevel') 会回调 MethodCallHandler
+      final int result = await methodChannelBattery.invokeMethod('getBatteryLevel');
+      batteryLevel = 'Battery level at $result % .';
+    } on PlatformException catch (e) {
+      batteryLevel = "Failed to get battery level: '${e.message}'.";
+    } on MissingPluginException catch (e) {
+      print(e);
+      batteryLevel = "plugin undefined";
+    }
+
+    setState(() {
+      _batteryLevel = batteryLevel;
+    });
   }
 
   /** 主界面列表weiget */

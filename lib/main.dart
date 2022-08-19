@@ -46,42 +46,56 @@ class _RandomWordsState extends State<RandomWords> {
         title: appBarTitleText,
         actions: <Widget>[
           ElevatedButton(
-            child: Text("查看电池电量"),
-            onPressed: _getBatteryLevel,
+            child: Text("查看系统信息"),
+            onPressed: _openSystemInfo,
           ),
           IconButton(onPressed: _pushSaved, icon: const Icon(Icons.list)),
         ],
       ),
       body: Center(
         child: Stack(children: [
-          Container(
-            child: Row(children: [
-              Text('电池电量:'),
-              Text(_batteryLevel)
-            ]),
-          ),
           _buildSuggerstions(),
         ],)
       ),
     );
   }
-
+  /// 获取系统电池信息
   Future<void> _getBatteryLevel() async {
     String batteryLevel;
     try {
       // invokeMethod('getBatteryLevel') 会回调 MethodCallHandler
       final int result = await methodChannelBattery.invokeMethod('getBatteryLevel');
-      batteryLevel = 'Battery level at $result % .';
+      batteryLevel = '$result % .';
     } on PlatformException catch (e) {
-      batteryLevel = "Failed to get battery level: '${e.message}'.";
+      batteryLevel = "获取电量失败: '${e.message}'.";
     } on MissingPluginException catch (e) {
-      print(e);
       batteryLevel = "plugin undefined";
     }
 
     setState(() {
       _batteryLevel = batteryLevel;
     });
+  }
+  
+  void _openSystemInfo() {
+    _getBatteryLevel();
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (BuildContext context) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text('系统信息'),
+          ),
+          body: ListView(children: [
+            Container(
+              child: Row(children: [
+                Text('电池电量:'),
+                Text(_batteryLevel)
+              ]),
+            ),
+          ]),
+        );
+      })
+    );
   }
 
   /** 主界面列表weiget */

@@ -13,6 +13,7 @@ import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 
 class MainActivity: FlutterActivity() {
+  /** 这里定义的key要与flutter那边一致 */
   private val CHANNEL = "samples.flutter.dev/battery"
 
   override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
@@ -21,6 +22,7 @@ class MainActivity: FlutterActivity() {
     MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler {
       // This method is invoked on the main thread.
       call, result ->
+      /** 判断flutter那边invoke的name */
       if (call.method == "getBatteryLevel") {
         val batteryLevel = getBatteryLevel()
 
@@ -35,6 +37,7 @@ class MainActivity: FlutterActivity() {
     }
   }
   
+  /** 获取电池电量 */
   private fun getBatteryLevel(): Int {
     val batteryLevel: Int
     if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
